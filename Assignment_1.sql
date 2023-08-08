@@ -24,17 +24,22 @@ LIMIT 1 OFFSET 1;
 
 --Q3 Report the top 3 most sold items for every month in 2022 including their monthly sales.
 
-SELECT
-    DATE_PART('year', bs.sale_date) AS sale_year,
-    DATE_PART('month', bs.sale_date) AS sale_month,
-    bs.article,
-     bs.quantity,
-    SUM(bs.unit_price * bs.quantity) AS revenue
-FROM assignment01.bakery_sales AS bs
-WHERE DATE_PART('year', bs.sale_date) = 2022
-GROUP BY sale_month, sale_year,bs.article,bs.quantity
-ORDER BY bs.quantity DESC
-LIMIT 3;
+WITH ranked_products AS (SELECT EXTRACT('year' FROM bs.sale_datetime)  AS sale_year,
+                                EXTRACT('month' FROM bs.sale_datetime) AS sale_month,
+                                bs.article,
+                                SUM(bs.quantity * unit_price)          AS revenue,
+                                RANK() OVER (
+                                    PARTITION BY EXTRACT('year' FROM bs.sale_datetime), EXTRACT('month' FROM bs.sale_datetime)
+                                    ORDER BY SUM(bs.quantity * bs.unit_price) DESC
+                                    )  AS sale_rank
+                         FROM assignment01.bakery_sales AS bs
+                         WHERE bs.unit_price IS NOT NULL
+                         GROUP BY 1, 2, 3
+                         ORDER BY 1, 2, 4 DESC)
+SELECT *
+FROM ranked_products
+WHERE ranked_products.sale_year ='2022'
+AND sale_rank <= 3;
 
 
 --Q4 Report all the tickets with 5 or more articles in August 2022 including the number of articles in each ticket.
