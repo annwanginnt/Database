@@ -146,3 +146,17 @@ WHERE date_part('year', bs.sale_date) = 2022
     AND bs.article = 'BANETTE'
 GROUP BY year, month, bs.article, total_quantity.total_quantity
 ORDER BY year, month;
+
+--Q10 AVG revenue by day, in august of 2022
+SELECT
+    date_part('year',bs.sale_date) AS year,
+    date_part('month',bs.sale_date) AS month,
+    date_part('day', bs.sale_date) AS day,
+    ROUND(AVG(bs.unit_price * bs.quantity),2) AS avg_revenue
+FROM assignment01.bakery_sales AS bs
+WHERE
+    date_part('month',bs.sale_date) = 8 AND
+    date_part('year',bs.sale_date) = 2022 AND
+    bs.unit_price IS NOT NULL
+GROUP BY 1,2,3
+ORDER BY 1,2,3;
