@@ -84,14 +84,27 @@ ORDER BY sum_quantity DESC;
 
 --Q8 Find the articles with the lowest sales in each month
 
+
+with sales as (
 SELECT
     date_part('month', bs.sale_date) AS month,
     bs.article,
-    MIN(bs.unit_price * bs.quantity) AS min_sales
+    sum(bs.unit_price * bs.quantity) as sale,
+rank() over(
+partition by date_part('month', bs.sale_date)
+order by  sum(bs.unit_price * bs.quantity) ASC
+) as rank
 FROM assignment01.bakery_sales AS bs
-GROUP BY date_part('month', bs.sale_date), bs.article
-HAVING MIN(bs.unit_price * bs.quantity) > 0
-ORDER BY month ASC , min_sales ASC;
+where bs.unit_price * bs.quantity>0
+group by 1,2
+ORDER BY month ASC , sale ASC)
+
+select
+s.month,
+s.article,
+s.sale
+from sales as s
+where rank =1;
 
 --Q9 Calculate the % of sales for each item between 2022-01-01 and 2022-01-31
 SELECT
