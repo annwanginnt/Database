@@ -107,18 +107,17 @@ from sales as s
 where rank =1;
 
 --Q9 Calculate the % of sales for each item between 2022-01-01 and 2022-01-31
-SELECT
+select
     bs.article,
-    ROUND(SUM(bs.unit_price * bs.quantity) / total_sales.total * 100 ,2) AS percentage_sales
-FROM assignment01.bakery_sales AS bs
-CROSS JOIN (
-    SELECT SUM(bs.unit_price * bs.quantity) AS total
-    FROM assignment01.bakery_sales AS bs
-    WHERE bs.sale_date >= '2022-01-01' AND bs.sale_date <= '2022-01-31'
-) AS total_sales
-WHERE bs.sale_date >= '2022-01-01' AND bs.sale_date <= '2022-01-31'
-GROUP BY bs.article, total_sales.total
-ORDER BY percentage_sales DESC;
+    ROUND(sum(bs.quantity * bs.unit_price) /
+(select
+--bs.article,
+sum(bs.quantity * bs.unit_price) as total_sale
+from assignment01.bakery_sales as bs)*100,2) as total_sale
+
+from assignment01.bakery_sales as bs
+WHERE bs.sale_date >='2022-01-01' and bs.sale_date <='2022-01-31'
+group by 1;
 
 --Q10 Calculate the order rate for the Banette for every month during 2022
 
